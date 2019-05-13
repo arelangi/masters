@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v3.8.5">
+    <title>Code Mixing Classify</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.3/examples/checkout/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+
+      .buttons{
+        margin-top:10em;
+      }
+
+      .mb-1{
+        display:none;
+      }
+    </style>
+    <!-- Custom styles for this template -->
+  </head>
+  <body class="bg-light">
+    <div class="container">
+  <div class="py-5 text-center">
+    
+    <h2>Classify</h2>
+    <p class="lead"></p>
+  </div>
+
+  <div class="row buttons">
+    <div class="col-md-2 order-md-2 mb-4">
+      <button class="btn btn-primary btn-lg btn-block" id="prev">Prev</button>
+    </div>    
+    
+    <div class="col-md-2 order-md-2 mb-4">
+      <button class="btn btn-success btn-lg btn-block" id="classifyT">Telugu</button>
+    </div>
+    <div class="col-md-2 order-md-2 mb-4">
+      <button class="btn btn-success btn-lg btn-block" id="classifyE">English</button>
+    </div>
+    <div class="col-md-2 order-md-2 mb-4">
+      <button class="btn btn-success btn-lg btn-block" id="classifyCM">CM</button>
+    </div>
+
+    <div class="col-md-2 order-md-2 mb-4">
+      <button class="btn btn-success btn-lg btn-block" id="classifyJ">Junk</button>
+    </div>
+    
+    <div class="col-md-2 order-md-2 mb-4">
+      <button class="btn btn-primary btn-lg btn-block" id="next">Next</button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12 order-md-2 mb-4">
+      <button class="btn btn-success btn-lg btn-block" id="romanized">Romanized</button>
+    </div>    
+  </div>
+
+  <footer class="my-5 pt-5 text-muted text-center text-small">
+    <p class="mb-1"></p>
+  </footer>
+</div>
+      <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+      <script src="js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+      <script>
+        
+          $( document ).ready(function() {
+              
+              //Current tweet
+              var current = {
+                "async": true,                
+                "url": "http://localhost:8881/current",
+                "method": "GET"
+              }
+              $.ajax(current).done(function (response) {
+                $('.lead').html(response.tweet);
+                $('.mb-1').html(response.id);
+              });
+
+              //Previous button
+              $( "#prev" ).click(function() {
+                var prev = {
+                  "async": false,
+                  "crossDomain": true,
+                  "url": "http://localhost:8881/prev",
+                  "method": "POST",
+                  "data": {"id":$('.mb-1').text()}
+                }
+                $.ajax(prev).done(function (response) {
+                  $('.lead').html(response.tweet);
+                  $('.mb-1').html(response.id);
+                });
+
+                console.log('done');
+
+              });
+
+              //Next button
+              $( "#next" ).click(function() {
+                var next = {
+                  "async": false,
+                  "crossDomain": true,
+                  "url": "http://localhost:8881/next",
+                  "method": "POST",
+                  "data": {"id":$('.mb-1').text()}
+                }
+                $.ajax(next).done(function (response) {
+                  console.log(response);  
+                  $('.lead').html(response.tweet);
+                  $('.mb-1').html(response.id);
+                });
+              });
+
+              //Telugu button
+              $( "#classifyT" ).click(function() {
+                var next = {
+                  "async": false,
+                  "crossDomain": true,
+                  "url": "http://localhost:8881/classify",
+                  "method": "POST",
+                  "data": {"id":$('.mb-1').text(), "class":"T"}
+                }
+                $.ajax(next).done(function (response) {
+                  console.log(response);  
+                  $('.lead').html(response.tweet);
+                  $('.mb-1').html(response.id);
+                });
+              });
+
+              //English button
+              $( "#classifyE" ).click(function() {
+                var next = {
+                  "async": false,
+                  "crossDomain": true,
+                  "url": "http://localhost:8881/classify",
+                  "method": "POST",
+                  "data": {"id":$('.mb-1').text(), "class":"E"}
+                }
+                $.ajax(next).done(function (response) {
+                  console.log(response);  
+                  $('.lead').html(response.tweet);
+                  $('.mb-1').html(response.id);
+                });
+              });
+
+              //CodeMixed button
+              $( "#classifyCM" ).click(function() {
+                var next = {
+                  "async": false,
+                  "crossDomain": true,
+                  "url": "http://localhost:8881/classify",
+                  "method": "POST",
+                  "data": {"id":$('.mb-1').text(), "class":"CM"}
+                }
+                $.ajax(next).done(function (response) {
+                  console.log(response);  
+                  $('.lead').html(response.tweet);
+                  $('.mb-1').html(response.id);
+                });
+              });
+
+              //Junk button
+              $( "#classifyJ" ).click(function() {
+                var next = {
+                  "async": false,
+                  "crossDomain": true,
+                  "url": "http://localhost:8881/classify",
+                  "method": "POST",
+                  "data": {"id":$('.mb-1').text(), "class":"J"}
+                }
+                $.ajax(next).done(function (response) {
+                  console.log(response);  
+                  $('.lead').html(response.tweet);
+                  $('.mb-1').html(response.id);
+                });
+              });
+
+              //Romanized button
+              $( "#romanized" ).click(function() {
+                var next = {
+                  "async": false,
+                  "crossDomain": true,
+                  "url": "http://localhost:8881/classify",
+                  "method": "POST",
+                  "data": {"id":$('.mb-1').text(), "class":"R"}
+                }
+                $.ajax(next).done(function (response) {
+                  console.log(response);  
+                  $('.lead').html(response.tweet);
+                  $('.mb-1').html(response.id);
+                });
+              });
+
+          });
+
+      </script>
+
+</html>
