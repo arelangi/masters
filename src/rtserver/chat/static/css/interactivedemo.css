@@ -1,0 +1,158 @@
+.feedback {
+    margin-left: 93%;
+}
+
+.fa-thumbs-up {
+    color: #cbead2;
+    text-shadow: 1px 1px 1px #ccc;
+    font-size: 1.5em;
+    margin: 5%;
+}
+
+.fa-thumbs-down {
+    color: #f5ccd2;
+    text-shadow: 1px 1px 1px #ccc;
+    font-size: 1.5em;
+    margin: 5%;
+}
+
+.secret {
+    
+}
+
+.dlr_name {
+    margin-left: 30%;
+}
+
+.svc_level {
+    margin-left: 40%;
+    margin-bottom: 3%;
+    color: #9397ff;
+}
+
+html {
+    overflow: hidden;
+}
+
+body {
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.graybg {
+    background: #D1D1D1;
+}
+
+
+#log {
+    background: white;
+    margin-top: 3.5%;
+    margin-bottom: 0.5%;
+    padding: 0.5em 0.5em 0.5em 0.5em;
+    position: absolute;
+    top: 0.5em;
+    left: 0.5em;
+    right: 0.5em;
+    bottom: 3em;
+    overflow: auto;
+}
+
+.ui-helper-hidden-accessible {
+    display: none;
+}
+
+#form {
+    padding: 0 0.5em 0 0.5em;
+    margin: 0;
+    position: absolute;
+    bottom: 1em;
+    left: 0px;
+    width: 100%;
+    overflow: hidden;
+}
+
+#bot {
+    color: blue;
+}
+
+.mdl-card__media {
+    margin: 0;
+}
+
+.mdl-card__actions {
+    display: flex;
+    box-sizing: border-box;
+    align-items: center;
+}
+
+.mdl-card__actions>.mdl-button--icon {
+    margin-right: 3px;
+    margin-left: 3px;
+}
+
+.bot-img {
+    width: 3%;
+}
+
+.usr-img {
+    width: 2.7%;
+}
+
+.fill {
+    min-height: 100%;
+    height: 100%;
+}
+
+.clickr {
+    color: #67a2ea!important;
+}
+
+.restart {
+    color: #67a2ea!important;
+}
+
+.dickr {
+    color: #67a2ef!important;
+}
+
+.highcharts-credits {
+    display: none;
+}
+
+.marginhalfem {
+    margin: 0.5em;
+}
+
+.marginoneem {
+    margin: 1em;
+}
+
+.marginhalfem a {
+    text-decoration: none;
+}
+
+.ui-widget-content {
+    background: rgba(226, 240, 255, .8);
+    max-width: 100%;
+    z-index: 100000;
+}
+
+.mdl-card__supporting-text {
+    color: #000 !important;
+}
+
+.expandFormat {
+    color: #5a7b5e;
+}
+
+.bar {
+    display: none;
+}
+
+.head-bar {
+    margin-right: 1%;
+    float: right;
+}
