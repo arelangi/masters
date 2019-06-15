@@ -1,0 +1,406 @@
+%\documentclass{report}
+\documentclass[print,ms]{nuthesis}%using the cls file from zahmeeth
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{comment}
+\usepackage{graphicx}
+\usepackage{epstopdf} %%package to overcome problem with eps in pdf files
+%\usepackage[compatible]{algpseudocode}%feb 22nd 2019
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[flushleft]{threeparttable}
+
+\usepackage{setspace}%added feb 17th midnight at meghnas place even below one
+\doublespacing
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
+\usepackage{adjustbox}
+
+\usepackage{xcolor}
+
+\usepackage{float}
+
+
+\usepackage{helvet}
+\usepackage{textcomp}
+\usepackage[T1]{fontenc}
+
+
+\newcommand{\secref}[1]{Section~\ref{#1}}
+\usepackage{xcolor}
+\usepackage{setspace}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{cite}
+\usepackage{textcomp}
+\usepackage{float}
+%\usepackage{caption}
+%\usepackage{algorithm}
+\usepackage{url}
+
+
+\usepackage{calc}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{subfig}
+\usepackage{multirow}
+\usepackage{bbding}
+\usepackage{rotating}
+\usepackage{array}
+\usepackage{float}
+
+%\usepackage{book}
+
+\newlength{\imgwidth}
+
+\newcommand\scalegraphics[1]{%   
+    \settowidth{\imgwidth}{\includegraphics{#1}}%
+    \setlength{\imgwidth}{\minof{\imgwidth}{\textwidth}}%
+    \includegraphics[width=\imgwidth]{#1}%
+}
+
+
+
+      
+\begin{document}
+\frontmatter
+\title{Data Block Access Pattern Aware Global Memory Locality Scheduling And Prefetching In Hadoop with Load Balancing}
+\author{Sai Suman}
+\adviser{Professor Ying Lu}
+\adviserAbstract{Ying Lu}
+\major{Computer Science}
+\degreemonth{March}
+\degreeyear{2019}
+
+\maketitle
+
+\begin{abstract}
+\label{sec:summary}
+\par Placing computation near the data has been studied quite extensively in recent years for clusters running Hadoop.  In practice, it is very difficult to place computation near data as cluster resources are shared among several users running applications.
+Data prefetching mechanism has been proposed in several recent studies to somewhat address the issue as it aims to bring the data to the computation in advance.
+
+\par Although several scheduling and prefetching algorithms have been proposed to improve data locality in Hadoop, there has not been much research to increase cluster performance by targeting the issue of data locality while considering the 1) cluster memory, 2) data access patterns and 3) real-time scheduling issues together.
+
+\par Firstly, considering the data access patterns is crucial because the computation might access some portion of the data in the cluster only once while the rest could be accessed multiple times. Blindly retaining data in memory might eventually lead to ineffcient memory utilization. Studies show that only a very small percent of the cluster data are accessed more than 10 times, around 1.5\% of cluster data are accessed more than 3 times while most of the cluster data are not accessed by more than one time. It is also known that popularity of the data changes over time and thus it can be leveraged to predict the future access patterns. 
+
+\par Secondly, several studies found that the cluster memory goes highly underutilized, leaving much room that can be leveraged for storing input data for future tasks. Leveraging the aforementioned memory underutilization in the clusters is important since the nodes in clusters are usually equipped with large amounts of memory. Prefetching the required data for future tasks into the memory has a potential of increasing the performance of the applications.
+
+\par Thirdly, enabling a prefetching mechanism to retain popular blocks in memory could eventually lead to memory shortage, we thus present two cache eviction algorithms to evict the data that will not be accessed frequently. Furthermore, since the caching mechanism could potentially lead to unbalanced utilization of memory in a cluster's nodes, we present a mechanism for balancing the memory loads across the cluster such that the utlization of the memory on all nodes is uniform and no node's memory is overutilized due to the prefetching mechanism. Since this thesis proposes a prefetching mechanism that is data access pattern aware, the load balancing mechanism becomes crucial so that popular blocks in a node are still retained in the cluster by migration if possible, instead of evicting them when the node's memory is close to being fully utilized. Even after migration to a different node, this mechanism still retains the usefulness offered from retaining popular blocks in memory because the blocks were deemed popular across the cluster, not just within the original node. 
+
+
+
+\par Keeping the above issues in mind, in this thesis, we present a scheduling and data prefetching framework on Hadoop that leverages the data access patterns and memory underutilization. Our framework is a locality aware real-time scheduling system on Hadoop that focuses on increasing memory utilization and achieving improved job completion time and system performance.  Our framework has been developed and implemented as a full integration into the Hadoop 2.8 ecosystem. We evaluate our framework in two modes- pseduo-distributed mode and fully distributed mode with 5 nodes on the standard WordCount benchmark. We present the results showing that our framework causes no interference with the existing Hadoop ecosystem. Our experiments show that the framework achieves improved job completion times, higher memory utilization, higher locality placement of tasks and also better overall system performance. Additionally, we also make our hadoop version publicly available via Github for the scientific community. 
+
+\end{abstract}
+
+\newpage
+\begin{center}
+COPYRIGHT \\
+\textcircled{c}~2019, Venkat Sai Suman Lamba Karanam
+
+\end{center}
+
+\newpage
+\begin{acknowledgments}
+\label{sec:ack}
+
+\par 
+
+\end{acknowledgments}
+
+%\newpage
+\tableofcontents
+\newpage
+\listoffigures
+\listoftables
+
+% \doublespace
+\mainmatter
+\chapter{Introduction}
+
+%\section{Introduction}
+
+
+\chapter{Background}
+
+\section{Architecture of Hadoop}
+
+\section{MapReduce}
+
+
+\section{YARN}
+
+\section{HDFS}
+
+
+
+\chapter{Literature Review}
+
+
+\newpage
+\chapter{Design}
+\section{Introduction}
+
+ 
+\begin{algorithm}[tbh]%places algorithm in proper place without too much empty spacing
+\caption{}\label{euclid}
+\begin{algorithmic}[1]
+\Procedure{Get\_Locations}{}
+\State Input: List of blocks B that are needed by the Application
+\State Output: Locations, which is the mapping between list of blocks to node global cache/node disk   
+\For{ each block $B_i$ in B}
+ \State Add locations of $B_i$ in Global\_Cache\_Image to Locations
+\State Add locations of $B_i$ in HDFS to Locations
+\State Initialise the application popularity $AP_i = 0$
+\EndFor
+return Locations
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\section{Containers Request Algorithm}
+
+
+%\newpage
+\section{Container Assignment Algorithm}
+
+
+\section{Execution and Data Block Prefetch}
+
+
+\section{Local Cache Eviction Strategy}
+
+\section{Global Cache Eviction and Load Balancing}
+
+\newpage
+\chapter{Implementation}
+
+\newpage
+\chapter{Evaluation}
+
+\section{Experimental setup}
+The experiments are designed to evaluate the percentage of locality improvement for the tasks, task execution times, total job completion time, total tasks killed and performance improvement compared to the default hadoop ecosystem. Further, to establish confidence in our model, we conduct our experiments in two different set ups: pseudo-distributed mode setup and fully distributed mode setup. For each of these cases, we discuss and analyze the drawbacks of the hadoop system and how our approach compensates for these drawbacks. Additionally, we also discuss some of the drawbacks presented by our framework and discuss how they could be improved in the future as well as how hadoop compensates for these drawbacks. %TODO We ultimately show that our framework improves the mean job completion time, locality and hence the system performance compared to default hadoop system. 
+
+We have implemented the framework as part of the Hadoop 2.8.1 and the comparisons are made against the default version of hadoop 2.8.1. For each of the test cases, we performed our evaluations with wordcount, one of the most commonly used benchmarks for evaluating the performance of hadoop system. We conduct experiments for the wordcount benchmark on two different workloads. The first one is taken from an open source project called Project Gutenberg [40], which is a collection of over 58,000 free eBooks. From Gutenberg Project, we collected 2 sets of workloads. The first one contains 85 text files with sizes ranging from 41 KB to 671KB, which we name as "GutenbergSmall". The second set in Gutenberg, which we name "GutenberLarge", contains seven individual input files with their sizes varying from 8.7MB to 2.27GB. The second workload was taken from Blog Authorship Corpus [41], which is a collection of 681,288 blog posts organized into 19,320 files (one file for each user) gathered from blogger.com in August 2004. The workload consists of over 140 million words in total and the file sizes range from 1KB to 2.7MB. Additionally, we have created a small set of larger workloads with sizes 4.5GB, 10GB and 20GB.  The workloads are described in tables 6.1 to 6.6.
+	
+
+%Table 1. Configurations of jobs in experiments for gutenberg workload
+\begin{table}[h!]
+ 
+\tiny
+  \begin{center}
+   \begin{threeparttable}
+    \caption{Individual configurations of files in GutenbergSmall workload}
+    \label{tab:table1}
+    \begin{tabular}{c|c|c}%{l|c|r} % <-- Alignments: 1st column left, 2nd middle and 3rd right, with vertical lines in between
+     \toprule % <-- Toprule here
+      \textbf{ID} & \textbf{Workload} & \textbf{Input Size (Bytes)}\\
+     % $\alpha$ & $\beta$ & $\gamma$  &$\delta$ &$\lambda$\\
+      \hline
+      1 & Wordcount & 133753 \\
+      2 & Wordcount & 148572 \\
+      3 & Wordcount & 273967 \\
+      4 & Wordcount & 429807  \\
+      5 & Wordcount & 98212 \\
+      6 & Wordcount & 368952  \\
+      7 & Wordcount & 110426  \\
+      8 & Wordcount & 41155  \\
+      9 & Wordcount & 114878  \\
+      10 & Wordcount & 114379  \\
+      11 & Wordcount & 360031  \\
+      12 & Wordcount & 392387 \\
+      13 & Wordcount & 392387  \\
+      14 & Wordcount & 461521  \\
+      15 & Wordcount & 166625  \\
+      16 & Wordcount & 105427  \\
+      17 & Wordcount & 325285  \\
+      18 & Wordcount & 38273 \\
+      19 & Wordcount & 124367 \\
+      20 & Wordcount & 309320 \\
+      21 & Wordcount & 123684  \\
+      22 & Wordcount & 393344  \\
+      23 & Wordcount & 116330  \\
+      24 & Wordcount & 202188  \\
+      25 & Wordcount & 288195  \\
+      26 & Wordcount & 119559  \\
+      27 & Wordcount & 266759  \\
+      28 & Wordcount & 671233  \\
+      29 & Wordcount & 82920  \\
+      30 & Wordcount & 385159  \\
+      31 & Wordcount & 97478 \\
+      32 & Wordcount & 976429 \\   
+      \bottomrule % <-- Bottomrule here
+    \end{tabular}
+   \begin{tablenotes}
+      \small
+      \item %This is where authors provide additional information about
+      %the data, including whatever notes are needed.
+    \end{tablenotes}
+  \end{threeparttable}
+  \end{center}
+   
+\end{table}
+
+%Table 1. Configurations of jobs in experiments for gutenberg workload
+\begin{table}[H]%[h!]
+\tiny
+  \begin{center}
+     \begin{threeparttable}
+
+    \caption{Configuration of GutenbergSmall workload overall}
+    \label{tab:table2}
+    \begin{tabular}{c|c|c}%{l|c|r} % <-- Alignments: 1st column left, 2nd middle and 3rd right, with vertical lines in between
+     \toprule % <-- Toprule here
+      \textbf{ID} & \textbf{Workload} & \textbf{Total Input Size (Bytes)}\\
+     % $\alpha$ & $\beta$ & $\gamma$  &$\delta$ &$\lambda$\\
+      \hline
+      1 & Wordcount & 7862392\\
+      \bottomrule % <-- Bottomrule here
+    \end{tabular}
+    \begin{tablenotes}
+      \small
+      \item %This is where authors provide additional information about
+      %the data, including whatever notes are needed.
+    \end{tablenotes}
+  \end{threeparttable}
+  \end{center}
+\end{table}
+
+
+%Table 2. Configurations of jobs in experiments for blog authorship corpus workload
+\begin{table}[H]%[h!]
+\small
+  \begin{center}
+     \begin{threeparttable}
+
+    \caption{Configuration of GutenbergLarge workload}
+    \label{tab:table3}
+    \begin{tabular}{c|c|c}%{l|c|r} % <-- Alignments: 1st column left, 2nd middle and 3rd right, with vertical lines in between
+     \toprule % <-- Toprule here
+      \textbf{ID} & \textbf{Workload} & \textbf{Input Size}\\
+     % $\alpha$ & $\beta$ & $\gamma$  &$\delta$ &$\lambda$\\
+      \hline
+      1 & Wordcount & 2.61 GB \\
+      \bottomrule % <-- Bottomrule here
+    \end{tabular}
+    \begin{tablenotes}
+      \small
+      \item %This is where authors provide additional information about
+      %the data, including whatever notes are needed.
+    \end{tablenotes}
+  \end{threeparttable}
+  \end{center}
+\end{table}
+
+%Table 2. Configurations of jobs in experiments for blog authorship corpus workload
+\begin{table}[H]%[h!]
+\small
+  \begin{center}
+     \begin{threeparttable}
+    \caption{Configurations of files in Blog Authorship Corpus workload}
+    \label{tab:table4}
+    \begin{tabular}{c|c|c}%{l|c|r} % <-- Alignments: 1st column left, 2nd middle and 3rd right, with vertical lines in between
+     \toprule % <-- Toprule here
+      \textbf{ID} & \textbf{Workload} & \textbf{Input Size}\\
+     % $\alpha$ & $\beta$ & $\gamma$  &$\delta$ &$\lambda$\\
+      \hline
+      1 & Wordcount & 401.6MB  \\
+      2 & Wordcount & 404.5MB \\
+      \bottomrule % <-- Bottomrule here
+    \end{tabular}
+    \begin{tablenotes}
+      \small
+      \item \textit{All 19320 input files in the BlogCorpus workload were combined into two separate input files to avoid creating 19320 mappers in the system}
+    \end{tablenotes}
+  \end{threeparttable}
+  \end{center}
+\end{table}
+
+
+%Table 2. Configurations of jobs in experiments for blog authorship corpus workload
+\begin{table}[H]%[h!]
+\small
+  \begin{center}
+     \begin{threeparttable}
+    \caption{Configuration of the Blog Authorship Corpus workload overall}
+    \label{tab:table4}
+    \begin{tabular}{c|c|c}%{l|c|r} % <-- Alignments: 1st column left, 2nd middle and 3rd right, with vertical lines in between
+     \toprule % <-- Toprule here
+      \textbf{ID} & \textbf{Workload} & \textbf{Input Size}\\
+     % $\alpha$ & $\beta$ & $\gamma$  &$\delta$ &$\lambda$\\
+      \hline
+      1 & Wordcount & 806.2MB \\
+      \bottomrule % <-- Bottomrule here
+    \end{tabular}
+    \begin{tablenotes}
+      \small
+      \item \textit{ }
+    \end{tablenotes}
+  \end{threeparttable}
+  \end{center}
+\end{table}
+
+
+%Table 2. Configurations of jobs in experiments for larger workloads
+\begin{table}[H]%[h!]
+\small
+  \begin{center}
+     \begin{threeparttable}
+    \caption{Configurations of the three larger workloads}
+    \label{tab:table4}
+    \begin{tabular}{c|c|c}%{l|c|r} % <-- Alignments: 1st column left, 2nd middle and 3rd right, with vertical lines in between
+     \toprule % <-- Toprule here
+      \textbf{ID} & \textbf{Workload} & \textbf{Input Size}\\
+     % $\alpha$ & $\beta$ & $\gamma$  &$\delta$ &$\lambda$\\
+      \hline
+      4GBWorkload & Wordcount & 4.23GB\\
+      10GBWorkload & Wordcount & 10.3GB\\
+      20GBWorkload & Wordcount & 20.06GB\\
+      \bottomrule % <-- Bottomrule here
+    \end{tabular}
+    \begin{tablenotes}
+      \small
+      \item \textit{ }
+    \end{tablenotes}
+  \end{threeparttable}
+  \end{center}
+\end{table}
+
+
+\subsection{Pseudo-distributed Setup }
+
+
+\subsection{Fully Distributed Setup}
+
+
+\section{Evaluation Results}
+
+
+\subsection{Pseudo-distributed Mode}
+
+
+
+\subsection{Fully Distributed Mode}
+
+
+\chapter{Conclusion and Future Work}
+
+
+
+\backmatter
+
+\begin{thebibliography}{9}
+
+ 
+\bibitem{mapreduce} 
+Jeffrey Dean, Sanjay Ghemawat.
+"MapReduce: Simplified Data Processing on Large Clusters".   
+Communications of the ACM, 2008.
+ 
+\end{thebibliography}
+
+
+\end{document} 

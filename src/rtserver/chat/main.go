@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -34,15 +37,66 @@ func serveIndex(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "index.html")
 }
 
+func serveUser(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.URL)
+	if r.URL.Path != "/user" {
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	}
+	http.ServeFile(w, r, "user.html")
+}
+
+type predictReq struct {
+	Text string `json:"text"`
+}
+
+func predictIndividual(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	log.Println(r.URL)
+	if r.URL.Path != "/predict" {
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	}
+
+	b, err := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	// Unmarshal
+	var msg predictReq
+	err = json.Unmarshal(b, &msg)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	fmt.Println("The inpur we received is")
+	fmt.Println(msg)
+
+	msg1 := RTTweet{OriginalText: msg.Text, NormalizedText: normalize(msg.Text)}
+	resp := predictions(msg1)
+	jsonResp, _ := json.Marshal(resp)
+
+	fmt.Println(string(jsonResp))
+
+	w.Write(jsonResp)
+}
+
 func main() {
 	flag.Parse()
 	hub := newHub()
 	go hub.run()
-	go streamProcessing()
+	//	go streamProcessing()
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.HandleFunc("/", serveHome)
 	http.HandleFunc("/home", serveHome)
+	http.HandleFunc("/user", serveUser)
+	http.HandleFunc("/predict", predictIndividual)
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})

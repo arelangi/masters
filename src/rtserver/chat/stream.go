@@ -66,7 +66,7 @@ func streamProcessing() {
 
 	// FILTER
 	filterParams := &twitter.StreamFilterParams{
-		Track:         []string{"chakri88", "chaitanya61", "umasudhir", "GabbarSanghi", "etvteluguindia", "priyadarshi_i", "ChaiBisket", "RaviTeja_offl", "SVCCofficial", "MondayReviews", "RRRMovie", "harikraju", "RajivAluri", "JalapathyG", "ganeshravuri", "UV_Creations", "haarikahassine", "123telugu", "ramjowrites", "idlebraindotcom", "idlebrainjeevi", "SKNonline", "vamsikaka", "aacreations9", "telugufilmnagar", "DVVMovies", "AndhraBoxOffice", "Telugu360", "greatandhranews", "smkoneru", "BhuviOfficial", "davidwarner31", "iamyusufpathan", "SunRisers", "IKReddy_Nirmal", "tgten", "IamKodaliNani", "GHMCOnline", "mmkeeravaani", "ZeeTVTelugu", "SakshiTelangana", "ys_sharmila", "VoiceTelangana", "bonthurammohan", "LakshmiManchu", "MaheshhKathi", "hmtvlive", "trsharish", "ntdailyonline", "vennelakishore", "baraju_SuperHit", "harish2you", "Gopimohan", "konavenkat99", "itsRajTarun", "Mee_Sunil", "ganeshbandla", "IamJagguBhai", "themohanbabu", "ramsayz", "MythriOfficial", "chay_akkineni", "TelanganaDGP", "hydcitypolice", "anusuyakhasba", "JanaSainiks", "SriVijayaNagesh", "AadhiHyper", "TV1Telugu", "telanganafacts", "BhakthiTVorg", "etvtelanganaa", "VSReddy_MP", "YSRCPDMO", "etvandhraprades", "kathimahesh", "AP24x7live", "sakshinews", "tv5newsnow", "SakshiHDTV", "NtvteluguHD", "V6News", "abntelugutv", "iamnagarjuna", "trspartyonline", "JaiTDP", "TV9Telugu", "TelanganaCMO", "Loksatta_Party", "YSRCParty", "JP_LOKSATTA", "ysjagan", "RaoKavitha", "KTRTRS", "naralokesh", "thisisysr", "gvprakash", "MsKajalAggarwal", "RanaDaggubati", "ThisIsDSP", "alluarjun", "AlluSirish", "impradeepmachi", "MukhiSree", "i_nivethathomas", "NANDAMURIKALYAN", "JanaSenaParty", "IamSaiDharamTej", "upasanakonidela", "AkhilAkkineni8", "sivakoratala", "Samanthaprabhu2", "urstrulyMahesh", "tarak9999"},
+		Track:         []string{"chakri88", "chaitanya61", "umasudhir", "GabbarSanghi", "etvteluguindia", "priyadarshi_i", "ChaiBisket", "RaviTeja_offl", "SVCCofficial", "MondayReviews", "RRRMovie", "harikraju", "RajivAluri", "ganeshravuri", "UV_Creations", "haarikahassine", "123telugu", "ramjowrites", "idlebraindotcom", "idlebrainjeevi", "SKNonline", "vamsikaka", "aacreations9", "telugufilmnagar", "DVVMovies", "AndhraBoxOffice", "Telugu360", "greatandhranews", "smkoneru", "BhuviOfficial", "davidwarner31", "iamyusufpathan", "SunRisers", "IKReddy_Nirmal", "IamKodaliNani", "GHMCOnline", "mmkeeravaani", "ZeeTVTelugu", "SakshiTelangana", "ys_sharmila", "VoiceTelangana", "bonthurammohan", "LakshmiManchu", "MaheshhKathi", "hmtvlive", "trsharish", "ntdailyonline", "vennelakishore", "baraju_SuperHit", "harish2you", "Gopimohan", "konavenkat99", "itsRajTarun", "Mee_Sunil", "ganeshbandla", "IamJagguBhai", "themohanbabu", "ramsayz", "MythriOfficial", "chay_akkineni", "TelanganaDGP", "hydcitypolice", "JanaSainiks", "SriVijayaNagesh", "AadhiHyper", "TV1Telugu", "telanganafacts", "BhakthiTVorg", "etvtelanganaa", "VSReddy_MP", "YSRCPDMO", "etvandhraprades", "kathimahesh", "AP24x7live", "sakshinews", "tv5newsnow", "SakshiHDTV", "NtvteluguHD", "V6News", "abntelugutv", "iamnagarjuna", "trspartyonline", "JaiTDP", "TV9Telugu", "TelanganaCMO", "Loksatta_Party", "YSRCParty", "JP_LOKSATTA", "ysjagan", "RaoKavitha", "KTRTRS", "naralokesh", "thisisysr", "gvprakash", "MsKajalAggarwal", "RanaDaggubati", "ThisIsDSP", "alluarjun", "AlluSirish", "impradeepmachi", "MukhiSree", "NANDAMURIKALYAN", "JanaSenaParty", "IamSaiDharamTej", "upasanakonidela", "AkhilAkkineni8", "sivakoratala", "Samanthaprabhu2", "urstrulyMahesh", "tarak9999"},
 		StallWarnings: twitter.Bool(true),
 	}
 	stream, err := client.Streams.Filter(filterParams)
@@ -88,20 +88,37 @@ func streamProcessing() {
 }
 
 func handleTweet(tweet *twitter.Tweet) {
+	var resp Response
 	msg := RTTweet{OriginalText: tweet.Text, NormalizedText: normalize(tweet.Text)}
+	resp = predictions(msg)
+	jsonResp, _ := json.Marshal(resp)
+	streamChan <- jsonResp
+}
 
+func predictions(msg RTTweet) (resp Response) {
+	var mitieVals, proseVals []string
 	predictions, err := callMLEngine(msg)
 	if err != nil {
 		return
 	}
 
-	entities := extractEntities(msg.NormalizedText)
+	if predictions.TranslatedText == "" {
+		mitieVals = mitieEntities(msg.NormalizedText)
+		proseVals = proseEntities(msg.NormalizedText)
+	} else {
+		mitieVals = mitieEntities(predictions.TranslatedText)
+		proseVals = proseEntities(predictions.TranslatedText)
+	}
 
-	resp := Response{Tweet: msg, Predictions: predictions, Entities: entities}
+	entities := make(map[string][]string)
+	entities["mitie"] = mitieVals
+	entities["prose"] = proseVals
+	entities["spacy"] = predictions.SpacyEntities
+	entities["nltk"] = predictions.NLTKEntities
 
-	jsonResp, _ := json.Marshal(resp)
-	streamChan <- jsonResp
+	resp = Response{Tweet: msg, Predictions: predictions, Entities: entities}
 
+	return
 }
 
 func callMLEngine(request RTTweet) (predictions Predictions, err error) {
@@ -128,9 +145,12 @@ func callMLEngine(request RTTweet) (predictions Predictions, err error) {
 
 	err = json.NewDecoder(resp.Body).Decode(&predictions)
 	if err != nil {
-		//mlog.Error("JSON Decoding error", mlog.Items{"error": err})
+		mlog.Error("JSON Decoding error", mlog.Items{"error": err})
 		return
 	}
+
+	//Now, make a call to the NER libraries
+
 	return
 }
 
@@ -149,14 +169,18 @@ type RTTweet struct {
 }
 
 type Predictions struct {
-	FtPrediction   string `json:"ft_prediction"`
-	LstmPrediction string `json:"lstm_prediction"`
-	NbPrediction   string `json:"nb_prediction"`
-	SvmPrediction  string `json:"svm_prediction"`
+	FtPrediction      string   `json:"ft_prediction"`
+	LstmPrediction    string   `json:"lstm_prediction"`
+	NbPrediction      string   `json:"nb_prediction"`
+	SvmPrediction     string   `json:"svm_prediction"`
+	TranslatedText    string   `json:"translated_text"`
+	NonEnglishPercent float64  `json:"non_english_percent"`
+	SpacyEntities     []string `json:"spacy_entities"`
+	NLTKEntities      []string `json:"nltk_entities"`
 }
 
 type Response struct {
-	Tweet       RTTweet     `json:"tweet"`
-	Predictions Predictions `json:"predictions"`
-	Entities    []string    `json:"entities"`
+	Tweet       RTTweet             `json:"tweet"`
+	Predictions Predictions         `json:"predictions"`
+	Entities    map[string][]string `json:"entities"`
 }

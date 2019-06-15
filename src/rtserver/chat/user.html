@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Code-mixed data</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.js" crossorigin="anonymous"></script>
+    <script src="static/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+
+    <script type="text/javascript">
+        window.onload = function () {
+            
+            
+            
+
+            $("#predict").click(function() {
+                var val = {
+                    text: $('#comment').val()
+                }
+
+                var settings = {
+                  "url": "http://localhost:8090/predict",
+                  "method": "POST",
+                  "headers": {
+                    "Content-Type": "application/json",
+                    "Accept": "*/*",
+                  },
+                  "processData": false,
+                  "contentType": false,
+                  "mimeType": "multipart/form-data",
+                  "data": JSON.stringify(val)
+                }
+
+                
+
+                $.ajax(settings).done(function (response) {
+                  x(response);
+                });
+
+            });
+            
+            function isRealValue(obj) {
+                return obj && obj !== 'null' && obj !== 'undefined';
+            }
+
+
+            
+
+            /*
+            $.post('http://localhost:8090/predict', {
+                    text: $('#comment').val()
+            }).done(function( data ) {
+                console.log(data);
+            });
+            */
+                    
+            function x(data) {
+                var messages = data.split('\n');
+                for (var i = 0; i < messages.length; i++) {
+                    jsonResp = jQuery.parseJSON(messages[i]);
+                    console.log(jsonResp);
+                    content='';
+
+                    if(isRealValue(jsonResp.entities)){
+                        
+                        content = '<div class="card border-info"><table class="table table-bordered table-sm table-striped"><tbody><tr><th scope="row">Original Tweet</th><td>'+jsonResp.tweet.original_text+'</td></tr><tr><th scope="row">Normalized Tweet</th><td>'+jsonResp.tweet.normalized_text+'</td></tr><tr><th scope="row">Translated Text</th><td>'+jsonResp.predictions.translated_text+'</td></tr></tbody></table> <div class="row"><div class="col-sm-3"><div class="card border-info"><div class="card-header border-info">Naive Bayes Classifier</div><div class="card-body"><p>'+jsonResp.predictions.nb_prediction+'</p></div></div></div><div class="col-sm-3"><div class="card border-info"><div class="card-header border-info">SVM Classifier</div><div class="card-body"><p>'+jsonResp.predictions.svm_prediction+'</p></div></div></div><div class="col-sm-3"><div class="card border-info"><div class="card-header border-info">fastText Classifier</div><div class="card-body"><p>'+jsonResp.predictions.ft_prediction+'</p></div></div></div><div class="col-sm-3"><div class="card border-info"><div class="card-header border-info">LSTM Classifier</div><div class="card-body"><p>'+jsonResp.predictions.lstm_prediction+'</p></div></div></div></div><hr/>';
+                        content += '<h5>Named Entities</h5><div class="row">';
+
+                        
+                        mitie = jsonResp.entities['mitie'];
+                        nltk = jsonResp.entities['nltk'];
+                        prose = jsonResp.entities['prose'];
+                        spacy = jsonResp.entities['spacy'];
+
+                        content += '<div class="col-sm-4"><div class="card border-info"><div class="card-header border-info">MITIE</div><div class="card-body">';
+                        if(isRealValue(mitie)){
+                            for(var j=0;j < mitie.length; j++){
+                                content += '<p>'+mitie[j]+'</p>';
+                            }    
+                        }else{
+                            content += '<p>No entities identified</p>';
+                        }
+                        content += '</div></div></div>';
+
+
+                        content += '<div class="col-sm-4"><div class="card border-info"><div class="card-header border-info">NLTK</div><div class="card-body">';
+                        if(isRealValue(nltk)){
+                            for(var j=0;j < nltk.length; j++){
+                                content += '<p>'+nltk[j]+'</p>';
+                            }    
+                        }else{
+                            content += '<p>No entities identified</p>';
+                        }
+                        content += '</div></div></div>';
+
+                        content += '<div class="col-sm-4"><div class="card border-info"><div class="card-header border-info">Spacy</div><div class="card-body">';
+                        if(isRealValue(spacy)){
+                            for(var j=0;j < spacy.length; j++){
+                                content += '<p>'+spacy[j]+'</p>';
+                            }    
+                        }else{
+                            content += '<p>No entities identified</p>';
+                        }
+                        content += '</div></div></div>';
+
+                        
+                        
+                        
+                        content += '</div>';
+                        
+                        //content += jsonResp.entities['mitie']+ '</div>';
+                    }else{
+                        content = '<div class="card border-info"> <table class="table table-bordered table-sm table-striped"><tbody><tr><th scope="row">Original Tweet</th><td>'+jsonResp.tweet.original_text+'</td></tr><tr><th scope="row">Normalized Tweet</th><td>'+jsonResp.tweet.normalized_text+'</td></tr></tbody></table> <div class="row"><div class="col-sm-3"><div class="card border-info"><div class="card-header border-info">Naive Bayes Classifier</div><div class="card-body"><p>'+jsonResp.predictions.nb_prediction+'</p></div></div></div><div class="col-sm-3"><div class="card border-info"><div class="card-header border-info">SVM Classifier</div><div class="card-body"><p>'+jsonResp.predictions.svm_prediction+'</p></div></div></div><div class="col-sm-3"><div class="card border-info"><div class="card-header border-info">fastText Classifier</div><div class="card-body"><p>'+jsonResp.predictions.ft_prediction+'</p></div></div></div><div class="col-sm-3"><div class="card border-info"><div class="card-header border-info">LSTM Classifier</div><div class="card-body"><p>'+jsonResp.predictions.lstm_prediction+'</p></div></div></div></div></div>';    
+                    }
+
+                    $('#result').html(content);
+                }
+            };
+            
+        };
+    </script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap core CSS -->
+    <link href="static/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/css/user.css">
+
+    <style>
+        main{
+        padding: 4em;
+        }
+
+
+        #result{
+            margin-top: 5%;
+        }
+
+        #predict{
+            margin-top: 1%;
+        }
+
+        .card{
+        margin: 1em;
+        }
+
+        .navbar-header {
+        float: left;
+        text-align: center;
+        width: 100%;
+        }
+
+        .navbar{
+        background-color: #5e00ff;
+        }
+        .navbar-brand {float:none;}
+    </style>
+    <!-- Custom styles for this template -->
+
+</head>
+
+<body>
+
+    
+
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top">
+        <div class="navbar-header">
+    <a class="navbar-brand" href="#">Code-mixed User Input Analysis</a>
+  </div>
+        
+    </nav>
+
+    <main role="main">
+
+        <div class="container">
+
+            <label for="comment">Enter text here:</label>
+            <textarea class="form-control" rows="5" id="comment"></textarea>
+            <button id="predict" type="button" class="btn btn-primary float-right">Primary</button>
+            
+        </div>
+        <!-- /container -->
+
+        
+        <div id="result">
+        </div>
+        
+
+    </main>
+
+    
+</body>
+</html>
