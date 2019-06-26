@@ -78,10 +78,8 @@ func predictIndividual(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(msg)
 
 	msg1 := RTTweet{OriginalText: msg.Text, NormalizedText: normalize(msg.Text)}
-	resp := predictions(msg1)
+	resp, _ := predictions(msg1)
 	jsonResp, _ := json.Marshal(resp)
-
-	fmt.Println(string(jsonResp))
 
 	w.Write(jsonResp)
 }
@@ -90,7 +88,7 @@ func main() {
 	flag.Parse()
 	hub := newHub()
 	go hub.run()
-	//	go streamProcessing()
+	go streamProcessing()
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.HandleFunc("/", serveHome)

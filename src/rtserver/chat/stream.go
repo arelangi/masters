@@ -90,14 +90,17 @@ func streamProcessing() {
 func handleTweet(tweet *twitter.Tweet) {
 	var resp Response
 	msg := RTTweet{OriginalText: tweet.Text, NormalizedText: normalize(tweet.Text)}
-	resp = predictions(msg)
-	jsonResp, _ := json.Marshal(resp)
-	streamChan <- jsonResp
+	resp, err := predictions(msg)
+	if err == nil {
+		jsonResp, _ := json.Marshal(resp)
+		streamChan <- jsonResp
+	}
 }
 
-func predictions(msg RTTweet) (resp Response) {
+func predictions(msg RTTweet) (resp Response, err error) {
 	var mitieVals, proseVals []string
-	predictions, err := callMLEngine(msg)
+	var predictions Predictions
+	predictions, err = callMLEngine(msg)
 	if err != nil {
 		return
 	}
@@ -148,8 +151,6 @@ func callMLEngine(request RTTweet) (predictions Predictions, err error) {
 		mlog.Error("JSON Decoding error", mlog.Items{"error": err})
 		return
 	}
-
-	//Now, make a call to the NER libraries
 
 	return
 }
